@@ -293,8 +293,6 @@
   <div class="sheet">
     <h2><span data-t="loginTitle">登录看全球排名</span><span class="x" data-close>✕</span></h2>
     <div class="body">
-      <button class="g" id="googleBtn"><span>🇬</span><span data-t="google">用 Google 登录</span></button>
-      <div class="or" data-t="or">— 或 —</div>
       <input id="emailInput" type="email" placeholder="you@email.com" />
       <button class="primary" id="emailBtn" data-t="emailBtn">发送登录链接</button>
       <div class="tip" id="loginTip" data-t="loginTip">免密码：点邮件里的链接即可登录</div>
@@ -892,7 +890,7 @@ const lbBtn=document.getElementById('lbBtn'), userBtn=document.getElementById('u
   userName=document.getElementById('userName'), userIcon=document.getElementById('userIcon'),
   loginModal=document.getElementById('loginModal'), lbModal=document.getElementById('lbModal'),
   emailInput=document.getElementById('emailInput'), emailBtn=document.getElementById('emailBtn'),
-  googleBtn=document.getElementById('googleBtn'), loginTip=document.getElementById('loginTip'),
+  loginTip=document.getElementById('loginTip'),
   lbList=document.getElementById('lbList');
 
 function refreshUserUI(){ const u=store&&store.user();
@@ -949,10 +947,6 @@ emailBtn.addEventListener('click', async ()=>{
   if(!r.ok){ loginTip.textContent=r.error||'error'; return; }
   if(r.instant){ closeModal(loginModal); await ensureCountry(); refreshUserUI(); }
   else loginTip.textContent=t('sent');
-});
-googleBtn.addEventListener('click', async ()=>{
-  const r=await store.signInGoogle();
-  if(r&&r.instant){ closeModal(loginModal); await ensureCountry(); refreshUserUI(); }
 });
 const myRankEl=document.getElementById('myRank');
 async function renderLB(scope){
