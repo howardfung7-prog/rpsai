@@ -389,6 +389,7 @@ const I18N = {
       login:"Log in", loginTitle:"Log in for global ranking", google:"Continue with Google",
       or:"— or —", emailBtn:"Send login link", loginTip:"Enter your email to get a 6-digit code",
       sendCode:"Send code", verifyCode:"Verify & log in", codeSent:"Code sent — check your email", badCode:"Wrong or expired code",
+      codeErr:"Couldn't send the code — please try again in a moment",
       rank:"Global Ranking", rankTip:"Ranked by games + win rate (Wilson lower bound)",
       signout:"Sign out", sent:"Link sent! Check your email", demo:"Demo mode (no backend yet)",
       empty:"No players yet — be the first!",
@@ -420,6 +421,7 @@ const I18N = {
       login:"登录", loginTitle:"登录看全球排名", google:"用 Google 登录",
       or:"— 或 —", emailBtn:"发送登录链接", loginTip:"输入邮箱，获取 6 位验证码",
       sendCode:"发送验证码", verifyCode:"验证并登录", codeSent:"验证码已发送，去邮箱查收", badCode:"验证码错误或已过期",
+      codeErr:"验证码发送失败，请稍后重试",
       rank:"全球排名", rankTip:"按 局数 + 胜率（Wilson 置信下限）排序",
       signout:"退出登录", sent:"链接已发送！去邮箱查收", demo:"Demo 模式（未接后端）",
       empty:"还没有玩家——来当第一个！",
@@ -962,7 +964,8 @@ emailBtn.addEventListener('click', async ()=>{
   if(store.demo){ const r=await store.signInEmail(email); emailBtn.disabled=false;
     if(r&&r.instant){ closeModal(loginModal); await ensureCountry(); refreshUserUI(); } return; }
   const r=await store.sendCode(email); emailBtn.disabled=false;
-  if(!r.ok){ loginTip.textContent=r.error||'error'; return; }
+  if(!r.ok){ const m=r.error; console.warn('sendCode error:',m);
+    loginTip.textContent=(typeof m==='string' && m && m!=='{}' && m.length<90)? m : t('codeErr'); return; }
   codeStep.style.display='block'; loginTip.textContent=t('codeSent'); codeInput.focus();
 });
 verifyBtn.addEventListener('click', async ()=>{
