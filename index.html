@@ -293,9 +293,13 @@
   <div class="sheet">
     <h2><span data-t="loginTitle">登录看全球排名</span><span class="x" data-close>✕</span></h2>
     <div class="body">
-      <input id="emailInput" type="email" placeholder="you@email.com" />
-      <button class="primary" id="emailBtn" data-t="emailBtn">发送登录链接</button>
-      <div class="tip" id="loginTip" data-t="loginTip">免密码：点邮件里的链接即可登录</div>
+      <input id="emailInput" type="email" placeholder="you@email.com" autocomplete="email" />
+      <button class="primary" id="emailBtn" data-t="sendCode">发送验证码</button>
+      <div id="codeStep" style="display:none">
+        <input id="codeInput" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6-digit code" style="text-align:center;letter-spacing:8px;font-size:22px" />
+        <button class="primary" id="verifyBtn" data-t="verifyCode">验证并登录</button>
+      </div>
+      <div class="tip" id="loginTip" data-t="loginTip">输入邮箱，获取 6 位验证码</div>
     </div>
   </div>
 </div>
@@ -383,7 +387,8 @@ const I18N = {
       win:"You win! 🎉", lose:"You lose 😝", tie:"Draw 🤝", noSee:"Didn't catch it 🤔",
       noSeeS:"Couldn't see your hand, try again~", played:"You: {y}  ·  AI: {a}", mask:"Mask",
       login:"Log in", loginTitle:"Log in for global ranking", google:"Continue with Google",
-      or:"— or —", emailBtn:"Send login link", loginTip:"Passwordless: just tap the email link",
+      or:"— or —", emailBtn:"Send login link", loginTip:"Enter your email to get a 6-digit code",
+      sendCode:"Send code", verifyCode:"Verify & log in", codeSent:"Code sent — check your email 📧", badCode:"Wrong or expired code",
       rank:"Global Ranking", rankTip:"Ranked by games + win rate (Wilson lower bound)",
       signout:"Sign out", sent:"Link sent! Check your email 📧", demo:"Demo mode (no backend yet)",
       empty:"No players yet — be the first!",
@@ -413,7 +418,8 @@ const I18N = {
       win:"你赢了！🎉", lose:"你输了 😝", tie:"平局 🤝", noSee:"没看清 🤔",
       noSeeS:"没看清你的手势，再来一次～", played:"你出{y}  ·  AI出{a}", mask:"面具",
       login:"登录", loginTitle:"登录看全球排名", google:"用 Google 登录",
-      or:"— 或 —", emailBtn:"发送登录链接", loginTip:"免密码：点邮件里的链接即可登录",
+      or:"— 或 —", emailBtn:"发送登录链接", loginTip:"输入邮箱，获取 6 位验证码",
+      sendCode:"发送验证码", verifyCode:"验证并登录", codeSent:"验证码已发送，去邮箱查收 📧", badCode:"验证码错误或已过期",
       rank:"全球排名", rankTip:"按 局数 + 胜率（Wilson 置信下限）排序",
       signout:"退出登录", sent:"链接已发送！去邮箱查收 📧", demo:"Demo 模式（未接后端）",
       empty:"还没有玩家——来当第一个！",
@@ -855,8 +861,10 @@ function makeSbStore(client){ return {
     await client.rpc('update_profile',{new_name:n,new_avatar:''}); } },
   async setWallet(w){ if(me&&w&&!me.walletSet){ me.wallet=w; me.walletSet=true;
     await client.rpc('set_wallet',{addr:w}); } },
-  async signInEmail(email){ const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
-    return {ok:!error, instant:false, error:error?.message}; },
+  async sendCode(email){ const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+    return {ok:!error, error:error?.message}; },
+  async verifyCode(email,code){ const {error}=await client.auth.verifyOtp({email,token:code,type:'email'});
+    return {ok:!error, error:error?.message}; },
   async signInGoogle(){ const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
     return {ok:!error, error:error?.message}; },
   async signOut(){ await client.auth.signOut(); me=null; },
@@ -896,7 +904,8 @@ const lbBtn=document.getElementById('lbBtn'), userBtn=document.getElementById('u
   userName=document.getElementById('userName'), userIcon=document.getElementById('userIcon'),
   loginModal=document.getElementById('loginModal'), lbModal=document.getElementById('lbModal'),
   emailInput=document.getElementById('emailInput'), emailBtn=document.getElementById('emailBtn'),
-  loginTip=document.getElementById('loginTip'),
+  codeStep=document.getElementById('codeStep'), codeInput=document.getElementById('codeInput'),
+  verifyBtn=document.getElementById('verifyBtn'), loginTip=document.getElementById('loginTip'),
   lbList=document.getElementById('lbList');
 
 function refreshUserUI(){ const u=store&&store.user();
@@ -910,7 +919,8 @@ document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if
 
 userBtn.addEventListener('click', ()=>{
   if(store.user()) openProfile();
-  else { loginTip.textContent = store.demo ? t('demo') : t('loginTip'); openModal(loginModal); }
+  else { codeStep.style.display='none'; codeInput.value=''; emailBtn.disabled=false;
+    loginTip.textContent = store.demo ? t('demo') : t('loginTip'); openModal(loginModal); }
 });
 
 /* ---- 我的资料：改用户名 + 绑定 SOL 地址 ---- */
@@ -949,11 +959,21 @@ signoutBtn.addEventListener('click', async ()=>{ await store.signOut(); me=null;
 emailBtn.addEventListener('click', async ()=>{
   const email=emailInput.value.trim(); if(!email) return;
   emailBtn.disabled=true;
-  const r=await store.signInEmail(email); emailBtn.disabled=false;
+  if(store.demo){ const r=await store.signInEmail(email); emailBtn.disabled=false;
+    if(r&&r.instant){ closeModal(loginModal); await ensureCountry(); refreshUserUI(); } return; }
+  const r=await store.sendCode(email); emailBtn.disabled=false;
   if(!r.ok){ loginTip.textContent=r.error||'error'; return; }
-  if(r.instant){ closeModal(loginModal); await ensureCountry(); refreshUserUI(); }
-  else loginTip.textContent=t('sent');
+  codeStep.style.display='block'; loginTip.textContent=t('codeSent'); codeInput.focus();
 });
+verifyBtn.addEventListener('click', async ()=>{
+  const email=emailInput.value.trim(), code=codeInput.value.trim();
+  if(code.length<6) return;
+  verifyBtn.disabled=true;
+  const r=await store.verifyCode(email,code); verifyBtn.disabled=false;
+  if(!r.ok){ loginTip.textContent=t('badCode'); return; }
+  closeModal(loginModal); await ensureCountry(); refreshUserUI();
+});
+codeInput && codeInput.addEventListener('keydown', e=>{ if(e.key==='Enter') verifyBtn.click(); });
 const myRankEl=document.getElementById('myRank');
 async function renderLB(scope){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.scope===scope));
