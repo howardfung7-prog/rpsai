@@ -18,6 +18,7 @@ create table if not exists public.profiles (
 alter table public.profiles add column if not exists country text default 'XX';
 alter table public.profiles add column if not exists sol_address text;
 alter table public.profiles add column if not exists name_locked boolean default false;
+alter table public.profiles add column if not exists wallet_locked boolean default false;
 
 alter table public.profiles enable row level security;
 drop policy if exists "read all"   on public.profiles;
@@ -71,11 +72,14 @@ begin
   update public.profiles set country = c where id = auth.uid();
 end; $$;
 
--- 绑定 SOL 钱包地址（传空字符串 = 解绑）
+-- 绑定 SOL 钱包地址（空投前只能设一次：wallet_locked 为真后不再改动）
 create or replace function public.set_wallet(addr text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
-  update public.profiles set sol_address = nullif(addr,''), updated_at = now()
+  update public.profiles set
+    sol_address   = case when wallet_locked then sol_address else nullif(addr,'') end,
+    wallet_locked = wallet_locked or (nullif(addr,'') is not null),
+    updated_at    = now()
   where id = auth.uid();
 end; $$;
 

@@ -337,8 +337,8 @@
       <label class="fld" data-t="username">用户名</label>
       <input id="nameInput" maxlength="20" placeholder="Player" />
       <label class="fld" data-t="wallet">SOL 钱包地址</label>
-      <input id="walletInput" spellcheck="false" placeholder="Phantom / Solflare address" />
-      <button class="g" id="phantomBtn">👻 <span data-t="connectWallet">连接 Phantom</span></button>
+      <input id="walletInput" spellcheck="false" placeholder="Your Solana wallet address" />
+      <div class="fld" id="walletHint" style="color:#8a5cff"></div>
       <div class="tip" id="profTip"></div>
       <button class="primary" id="saveProfBtn" data-t="saveP">保存</button>
       <button class="g" id="signoutBtn" data-t="signout">退出登录</button>
@@ -395,6 +395,7 @@ const I18N = {
       profile:"My Profile", username:"Username", wallet:"SOL Wallet Address", connectWallet:"Connect Phantom",
       invalidAddr:"Invalid SOL address", saved:"Saved ✓", walletFilled:"Address filled ✓", saveP:"Save",
       nameOnce:"⚠ Username can be set only once", nameLocked:"🔒 Username is locked",
+      walletOnce:"⚠ SOL address can be set once (before airdrop)", walletLocked:"🔒 SOL address is locked",
       noPhantom:"Phantom not found — paste address or open in the Phantom app", streak:"WIN STREAK",
       psyTitle:"Player Psychology", psyThrows:"Throw habits", psyPredict:"Unpredictability",
       psyWinStay:"Win-Stay", psyLoseShift:"Lose-Shift ↻", psyTell:"YOUR TELL",
@@ -424,6 +425,7 @@ const I18N = {
       profile:"我的资料", username:"用户名", wallet:"SOL 钱包地址", connectWallet:"连接 Phantom",
       invalidAddr:"SOL 地址无效", saved:"已保存 ✓", walletFilled:"已填入 ✓", saveP:"保存",
       nameOnce:"⚠ 用户名只能设置一次", nameLocked:"🔒 用户名已锁定，不可再改",
+      walletOnce:"⚠ SOL 地址只能设置一次（空投前）", walletLocked:"🔒 SOL 地址已锁定",
       noPhantom:"未检测到 Phantom——请粘贴地址，或在 Phantom 内打开", streak:"连胜",
       psyTitle:"玩家心理分析", psyThrows:"出拳习惯", psyPredict:"难以预测度",
       psyWinStay:"胜留（赢后重复）", psyLoseShift:"败变（输后顺时针换）↻", psyTell:"你的破绽",
@@ -816,7 +818,7 @@ const localStore = {
   record(r){ if(!me)return; if(r==='win')me.wins++; else if(r==='lose')me.losses++; else me.ties++; this._save(); },
   async setCountry(c){ if(me){ me.country=c; this._save(); } },
   async setName(n){ if(me&&n&&!me.nameSet){ me.name=n; me.nameSet=true; this._save(); } },
-  async setWallet(w){ if(me){ me.wallet=w||''; this._save(); } },
+  async setWallet(w){ if(me&&w&&!me.walletSet){ me.wallet=w; me.walletSet=true; this._save(); } },
   _save(){ localStorage.setItem('rps_me', JSON.stringify(me)); },
   async leaderboard(scope='global'){
     const bots=[
@@ -842,12 +844,13 @@ function makeSbStore(client){ return {
     client.auth.onAuthStateChange((_e,s)=>{ if(s){ this._fetchMe(s.user.id).then(refreshUserUI);} }); },
   async _fetchMe(id){ sbUserId=id; const {data}=await client.from('profiles').select('*').eq('id',id).single();
     if(data){ me={name:data.display_name,avatar:data.avatar,country:data.country,wallet:data.sol_address||'',
-      nameSet:!!data.name_locked, wins:data.wins,losses:data.losses,ties:data.ties}; } },
+      nameSet:!!data.name_locked, walletSet:!!data.wallet_locked, wins:data.wins,losses:data.losses,ties:data.ties}; } },
   user(){ return me; },
   async setCountry(c){ if(me)me.country=c; await client.rpc('set_country',{c}); },
   async setName(n){ if(me&&!me.nameSet&&n){ me.name=n; me.nameSet=true;
     await client.rpc('update_profile',{new_name:n,new_avatar:''}); } },
-  async setWallet(w){ if(me)me.wallet=w||''; await client.rpc('set_wallet',{addr:w||''}); },
+  async setWallet(w){ if(me&&w&&!me.walletSet){ me.wallet=w; me.walletSet=true;
+    await client.rpc('set_wallet',{addr:w}); } },
   async signInEmail(email){ const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});
     return {ok:!error, instant:false, error:error?.message}; },
   async signInGoogle(){ const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
@@ -908,7 +911,7 @@ userBtn.addEventListener('click', ()=>{
 
 /* ---- 我的资料：改用户名 + 绑定 SOL 地址 ---- */
 const profileModal=document.getElementById('profileModal'), nameInput=document.getElementById('nameInput'),
-  walletInput=document.getElementById('walletInput'), phantomBtn=document.getElementById('phantomBtn'),
+  walletInput=document.getElementById('walletInput'), walletHint=document.getElementById('walletHint'),
   profTip=document.getElementById('profTip'), saveProfBtn=document.getElementById('saveProfBtn'),
   signoutBtn=document.getElementById('signoutBtn');
 
@@ -924,14 +927,10 @@ function isSolAddress(s){ if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(s)) return fa
 function openProfile(){ const u=store.user(); if(!u) return;
   nameInput.value=u.name||''; walletInput.value=u.wallet||'';
   nameInput.disabled=!!u.nameSet;
+  walletInput.disabled=!!u.walletSet;
+  walletHint.textContent = u.walletSet ? t('walletLocked') : t('walletOnce');
   profTip.textContent = u.nameSet ? t('nameLocked') : t('nameOnce');
   openModal(profileModal); }
-
-phantomBtn.addEventListener('click', async ()=>{
-  const p=window.solana||(window.phantom&&window.phantom.solana);
-  if(!p||!p.isPhantom){ profTip.textContent=t('noPhantom'); return; }
-  try{ const res=await p.connect(); walletInput.value=res.publicKey.toString(); profTip.textContent=t('walletFilled'); }
-  catch(e){ profTip.textContent=e.message; } });
 
 saveProfBtn.addEventListener('click', async ()=>{
   const n=nameInput.value.trim(), w=walletInput.value.trim();
