@@ -865,7 +865,8 @@ function makeSbStore(client){ return {
     await client.rpc('set_wallet',{addr:w}); } },
   async sendCode(email){ const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
     return {ok:!error, error:error?.message}; },
-  async verifyCode(email,code){ const {error}=await client.auth.verifyOtp({email,token:code,type:'email'});
+  async verifyCode(email,code){ const {data,error}=await client.auth.verifyOtp({email,token:code,type:'email'});
+    if(!error && data && data.user){ sbUserId=data.user.id; await this._fetchMe(data.user.id); }
     return {ok:!error, error:error?.message}; },
   async signInGoogle(){ const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
     return {ok:!error, error:error?.message}; },
@@ -896,7 +897,7 @@ async function initStore(){
   if(USE_SB){ const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
     sb=createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}); store=makeSbStore(sb); }
   else store=localStore;
-  await store.load(); ensureCountry(); refreshUserUI();
+  await store.load(); await ensureCountry(); refreshUserUI();
 }
 async function ensureCountry(){ const cc=await detectCountry();
   if(store && store.user() && (!me.country || me.country==='XX')) await store.setCountry(cc); }
