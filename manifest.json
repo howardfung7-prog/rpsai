@@ -1,0 +1,17 @@
+{
+  "name": "RPSAI — Rock Paper Scissors vs AI",
+  "short_name": "RPSAI",
+  "description": "Real-time webcam Rock-Paper-Scissors against an AI. Retro pixel style, global rankings.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#008080",
+  "theme_color": "#008080",
+  "lang": "en",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
