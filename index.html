@@ -546,6 +546,9 @@ async function startCamera(){
   const stream=await navigator.mediaDevices.getUserMedia({
     video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
   video.srcObject=stream; await video.play();
+  // iOS/后台：视频被暂停时自动恢复，防止卡住
+  video.addEventListener('pause', ()=>{ if(running) video.play().catch(()=>{}); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && running) video.play().catch(()=>{}); });
   canvas.width=video.videoWidth; canvas.height=video.videoHeight;
   running=true; maskbar.style.display='flex'; sizeFx(); requestAnimationFrame(loop);
 }
@@ -553,7 +556,9 @@ async function startCamera(){
 /* ---------------- 主循环 ---------------- */
 function loop(){
   if(!running) return;
+  requestAnimationFrame(loop);          // 先排下一帧：任何异常都不会中断循环
   frame++;
+  try{
   if(video.readyState>=2){
     const now=performance.now();
     const res=hands.detectForVideo(video, now);
@@ -584,7 +589,7 @@ function loop(){
       } else { thumbSince=0; readyEl.classList.remove('on'); }
     }else{ lastGesture=null; youHand.textContent='—'; thumbSince=0; readyEl.classList.remove('on'); }
   }
-  requestAnimationFrame(loop);
+  }catch(e){ /* 单帧异常忽略，下一帧继续 */ }
 }
 
 function drawMask(lm){
@@ -805,7 +810,8 @@ const localStore = {
   async load(){ me = JSON.parse(localStorage.getItem('rps_me')||'null'); },
   user(){ return me; },
   async signInEmail(email){ me={name:email.split('@')[0],avatar:'🦊',wins:0,losses:0,ties:0}; this._save(); return {ok:true,instant:true}; },
-  async signInGoogle(){ const n=prompt('昵称 / Nickname')||'Player'; me={name:n,avatar:'🦊',wins:0,losses:0,ties:0}; this._save(); return {ok:true,instant:true}; },
+  async signInGoogle(){ const n='Player'+Math.floor(1000+Math.random()*9000); // 不用 prompt，避免 iOS 暂停摄像头
+    me={name:n,avatar:'🦊',country:_cc,wins:0,losses:0,ties:0}; this._save(); return {ok:true,instant:true}; },
   async signOut(){ me=null; localStorage.removeItem('rps_me'); },
   record(r){ if(!me)return; if(r==='win')me.wins++; else if(r==='lose')me.losses++; else me.ties++; this._save(); },
   async setCountry(c){ if(me){ me.country=c; this._save(); } },
