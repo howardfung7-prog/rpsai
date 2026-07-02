@@ -837,9 +837,15 @@ const localStore = {
 
 function makeSbStore(client){ return {
   demo:false,
-  async load(){ const {data}=await client.auth.getSession();
+  async load(){
+    // 跳转回来若带错误（如链接过期），显示出来
+    if(location.hash.includes('error')){ const p=new URLSearchParams(location.hash.slice(1));
+      statusEl.textContent='Login failed: '+(p.get('error_description')||p.get('error')||'');
+      try{ history.replaceState(null,'',location.pathname); }catch(e){} }
+    const {data}=await client.auth.getSession();
     if(data.session) await this._fetchMe(data.session.user.id);
-    client.auth.onAuthStateChange((_e,s)=>{ if(s){ this._fetchMe(s.user.id).then(refreshUserUI);} }); },
+    client.auth.onAuthStateChange((evt,s)=>{ if(s){ this._fetchMe(s.user.id).then(refreshUserUI);
+      if(evt==='SIGNED_IN' && location.hash){ try{ history.replaceState(null,'',location.pathname); }catch(e){} } } }); },
   async _fetchMe(id){ sbUserId=id; const {data}=await client.from('profiles').select('*').eq('id',id).single();
     if(data){ me={name:data.display_name,avatar:data.avatar,country:data.country,wallet:data.sol_address||'',
       nameSet:!!data.name_locked, walletSet:!!data.wallet_locked, wins:data.wins,losses:data.losses,ties:data.ties}; } },
@@ -878,7 +884,7 @@ function makeSbStore(client){ return {
 
 async function initStore(){
   if(USE_SB){ const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    sb=createClient(SUPABASE_URL,SUPABASE_ANON); store=makeSbStore(sb); }
+    sb=createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}); store=makeSbStore(sb); }
   else store=localStore;
   await store.load(); ensureCountry(); refreshUserUI();
 }
