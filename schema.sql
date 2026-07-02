@@ -1,9 +1,9 @@
 -- ============================================================
---  剪刀石头布 · Supabase 后端建表脚本
---  用法：Supabase 控制台 → SQL Editor → 粘贴全部 → Run
+--  RPSAI · Supabase backend schema
+--  Usage: Supabase dashboard -> SQL Editor -> paste all -> Run
 -- ============================================================
 
--- 1) 玩家档案表（含 country，用于本国排名）
+-- 1) player profiles (with country, for national ranking)
 create table if not exists public.profiles (
   id           uuid primary key references auth.users on delete cascade,
   display_name text,
@@ -28,7 +28,7 @@ create policy "read all"   on public.profiles for select using (true);
 create policy "update own" on public.profiles for update using (auth.uid() = id);
 create policy "insert own" on public.profiles for insert with check (auth.uid() = id);
 
--- 2) 注册后自动建档
+-- 2) auto-create profile on signup
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -41,7 +41,7 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users for each row execute function public.handle_new_user();
 
--- 3) 记录一局结果（只允许 +1，防止客户端乱写总数）
+-- 3) record a round result (+1 only; clients can't set totals)
 create or replace function public.record_result(outcome text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -53,7 +53,7 @@ begin
   where id = auth.uid();
 end; $$;
 
--- 4) 更新昵称 / 头像（用户名只能设置一次：name_locked 为真后不再改动）
+-- 4) update name / avatar (username set-once: locked after name_locked)
 create or replace function public.update_profile(new_name text, new_avatar text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -72,7 +72,7 @@ begin
   update public.profiles set country = c where id = auth.uid();
 end; $$;
 
--- 绑定 SOL 钱包地址（空投前只能设一次：wallet_locked 为真后不再改动）
+-- bind SOL wallet address (set-once before airdrop: locked after wallet_locked)
 create or replace function public.set_wallet(addr text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -83,7 +83,7 @@ begin
   where id = auth.uid();
 end; $$;
 
--- 5) 打分基表：Wilson 95% 置信下限（z=1.96, z²=3.8416）
+-- 5) scoring base: Wilson 95% lower bound (z=1.96, z^2=3.8416)
 create or replace view public.lb_base as
 with b as (
   select id, display_name, avatar, country, wins, losses, ties,
@@ -101,7 +101,7 @@ select
   end as score
 from b;
 
--- 6) 全球榜（全体排名） + 本国榜（按 country 分区排名）
+-- 6) global leaderboard (overall) + national (partitioned by country)
 create or replace view public.leaderboard as
   select *, rank() over (order by score desc, decisive desc) as rank from public.lb_base;
 
@@ -110,4 +110,4 @@ create or replace view public.leaderboard_national as
 
 grant select on public.lb_base, public.leaderboard, public.leaderboard_national to anon, authenticated;
 
--- 完成 ✅
+-- done

@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="RPSAI" />
-<!-- Open Graph / 社交预览 -->
+<!-- Open Graph / social preview -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://rpsai.io/" />
 <meta property="og:title" content="RPSAI — Rock·Paper·Scissors vs AI" />
@@ -39,7 +39,7 @@
   #app{display:flex;flex-direction:column;height:100dvh;max-width:560px;margin:0 auto;
     background:var(--gray);box-shadow:var(--raise);padding:3px}
 
-  /* 窗口标题栏 */
+  /* window title bar */
   .titlebar{display:flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--navy),var(--navy2));
     color:#fff;font-family:var(--pix);font-size:9px;padding:4px 4px;margin-bottom:3px}
   .titlebar .tt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:1px}
@@ -76,18 +76,18 @@
   .flash{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;background:#fff}
   .flash.go{animation:flash .3s ease-out}
   @keyframes flash{from{opacity:.7}to{opacity:0}}
-  /* 连胜徽章 */
+  /* streak badge */
   .combo{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:8;
     font-family:var(--pix);font-size:16px;color:#ff0;display:none;
     background:rgba(0,0,0,.55);padding:6px 12px;box-shadow:var(--raise);white-space:nowrap;
     text-shadow:2px 2px 0 #c00000}
   .combo.on{display:block;animation:cbump .25s steps(2)}
   @keyframes cbump{from{transform:translateX(-50%) scale(1.5)}to{transform:translateX(-50%) scale(1)}}
-  /* 连胜大字 */
+  /* streak word */
   .comboword{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);z-index:8;
     font-family:var(--pix);font-size:34px;color:#fff;text-align:center;pointer-events:none;
     opacity:0;white-space:nowrap}
-  /* 👍 READY 就绪反馈 */
+  /* 👍 READY feedback */
   .ready{position:absolute;inset:0;z-index:8;display:none;flex-direction:column;align-items:center;
     justify-content:center;pointer-events:none;text-align:center;gap:14px}
   .ready.on{display:flex}
@@ -199,7 +199,7 @@
     font-size:17px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px}
   .myrank b{font-family:var(--pix);font-size:11px;color:#ff0}
   .fld{display:block;font-family:var(--pix);font-size:8px;color:#000;margin:0 0 6px;letter-spacing:1px}
-  /* 心理分析 */
+  /* psychology */
   .iqbox{background:#000;box-shadow:var(--sink);color:#0f0;text-align:center;padding:10px;margin-bottom:12px;
     font-family:var(--pix);font-size:12px}
   .iqbox b{font-size:26px;color:#ff0;display:inline-block;margin:0 4px}
@@ -288,7 +288,7 @@
   </footer>
 </div>
 
-<!-- 登录弹窗 -->
+<!-- login modal -->
 <div class="modal" id="loginModal">
   <div class="sheet">
     <h2><span data-t="loginTitle">登录看全球排名</span><span class="x" data-close>✕</span></h2>
@@ -304,7 +304,7 @@
   </div>
 </div>
 
-<!-- 排行榜弹窗 -->
+<!-- leaderboard modal -->
 <div class="modal" id="lbModal">
   <div class="sheet">
     <h2><span>🏆 <span data-t="rank">全球排名</span></span><span class="x" data-close>✕</span></h2>
@@ -320,7 +320,7 @@
   </div>
 </div>
 
-<!-- 单窗口锁（防多开刷分） -->
+<!-- single-window lock (anti multi-tab farming) -->
 <div class="modal" id="lockModal">
   <div class="sheet">
     <h2><span>⏸ <span data-t="lockTitle">已暂停</span></span></h2>
@@ -331,7 +331,7 @@
   </div>
 </div>
 
-<!-- 我的资料弹窗 -->
+<!-- profile modal -->
 <div class="modal" id="profileModal">
   <div class="sheet">
     <h2><span data-t="profile">我的资料</span><span class="x" data-close>✕</span></h2>
@@ -348,7 +348,7 @@
   </div>
 </div>
 
-<!-- 心理分析弹窗 -->
+<!-- psychology modal -->
 <div class="modal" id="psyModal">
   <div class="sheet">
     <h2><span>🧠 <span data-t="psyTitle">玩家心理分析</span></span><span class="x" data-close>✕</span></h2>
@@ -356,7 +356,7 @@
   </div>
 </div>
 
-<!-- 战绩分享卡弹窗 -->
+<!-- score card modal -->
 <div class="modal" id="shareModal">
   <div class="sheet">
     <h2><span data-t="shareTitle">我的战绩卡</span><span class="x" data-close>✕</span></h2>
@@ -372,12 +372,12 @@
 import { HandLandmarker, FaceLandmarker, FilesetResolver }
   from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-/* ================= 后端配置 =================
-   填了 = 真·全球排名；留空 = 本地 Demo 模式。见 SETUP.md */
+/* ================= Backend config =================
+   Filled = real global ranking; empty = local demo mode. See SETUP.md */
 const SUPABASE_URL  = "https://myaelgeedmcomofmonwn.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15YWVsZ2VlZG1jb21vZm1vbnduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5OTE5MzEsImV4cCI6MjA5ODU2NzkzMX0.Tj8Y3xjSYmymS_8nMI-WcWOmcCftzwUnSY6vO_4eu-0";
 
-/* ---------------- i18n：10 种语言 ---------------- */
+/* ---------------- i18n: 10 languages ---------------- */
 const I18N = {
   en:{name:"English", title:"✊✌️🖐️ RPSAI", you:"You", ai:"AI", start:"Start Round",
       hint:'On “Paper!”, show ✊/✌️/🖐️ to the camera', statusInit:"Tap the button and show your hand",
@@ -503,7 +503,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=> el.textContent = t(el.dataset.t));
   localStorage.setItem('rps_lang', lang);
 }
-// 语言下拉
+// language dropdown
 const langSel = document.getElementById('lang');
 for(const code in I18N){
   const o = document.createElement('option');
@@ -530,11 +530,11 @@ let hands, face, running=false, lastGesture=null, scoreYou=0, scoreAi=0, streak=
 let history=[]; try{ history=JSON.parse(localStorage.getItem('rps_history')||'[]'); }catch(e){}
 let mindReader=false, predHits=0, predN=0, aiGuess=null, thumbSince=0;
 
-/* 面具 */
+/* mask */
 const MASKS=['🦊','🐱','🐶','🐼','🐨','🐵','🦁','🐯','🤡','👽','🤖','🎃','😎','🥸','🐸','🐰'];
 let maskOn=false, maskIdx=0, lastFace=null, frame=0;
 
-/* ---------------- 加载模型 ---------------- */
+/* ---------------- load models ---------------- */
 async function init(){
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
@@ -547,22 +547,22 @@ async function init(){
   loader.style.display='none'; playBtn.disabled=false;
 }
 
-/* ---------------- 摄像头 ---------------- */
+/* ---------------- camera ---------------- */
 async function startCamera(){
   const stream=await navigator.mediaDevices.getUserMedia({
     video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
   video.srcObject=stream; await video.play();
-  // iOS/后台：视频被暂停时自动恢复，防止卡住
+  // iOS/background: auto-resume video if it gets paused
   video.addEventListener('pause', ()=>{ if(running) video.play().catch(()=>{}); });
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && running) video.play().catch(()=>{}); });
   canvas.width=video.videoWidth; canvas.height=video.videoHeight;
   running=true; maskbar.style.display='flex'; sizeFx(); requestAnimationFrame(loop);
 }
 
-/* ---------------- 主循环 ---------------- */
+/* ---------------- main loop ---------------- */
 function loop(){
   if(!running) return;
-  requestAnimationFrame(loop);          // 先排下一帧：任何异常都不会中断循环
+  requestAnimationFrame(loop);          // schedule next frame first: exceptions never break the loop
   frame++;
   try{
   if(video.readyState>=2){
@@ -570,7 +570,7 @@ function loop(){
     const res=hands.detectForVideo(video, now);
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // 面具：每 2 帧检测一次脸，省性能
+    // mask: detect face every 2 frames to save perf
     if(maskOn){
       if(frame%2===0){ const f=face.detectForVideo(video, now+0.5);
         lastFace=(f.faceLandmarks&&f.faceLandmarks.length)?f.faceLandmarks[0]:null; }
@@ -582,12 +582,12 @@ function loop(){
       if(!maskOn) drawHand(lm);
       lastGesture=classify(lm);
       youHand.textContent=lastGesture?EMOJI[lastGesture]:'🤚';
-      // 👍 竖大拇指保持约 0.8 秒自动开局（仅空闲时），中央显示大 READY + 进度
+      // 👍 hold thumbs-up ~0.8s to auto-start (idle only); shows big READY + progress
       if(!playBtn.disabled && isThumbsUp(lm)){
         youHand.textContent='👍';
         if(!thumbSince) thumbSince=now;
         const held=now-thumbSince;
-        if(held>=220){                                   // 起始宽限，滤掉张手过渡瞬间
+        if(held>=220){                                   // startup grace: filter out the open-hand transition
           const prog=Math.min(1,(held-220)/600);
           readyEl.classList.add('on'); readyBar.style.width=(prog*100)+'%';
           if(prog>=1){ thumbSince=0; readyEl.classList.remove('on'); playRound(); }
@@ -595,7 +595,7 @@ function loop(){
       } else { thumbSince=0; readyEl.classList.remove('on'); }
     }else{ lastGesture=null; youHand.textContent='—'; thumbSince=0; readyEl.classList.remove('on'); }
   }
-  }catch(e){ /* 单帧异常忽略，下一帧继续 */ }
+  }catch(e){ /* ignore single-frame errors, continue next frame */ }
 }
 
 function drawMask(lm){
@@ -623,7 +623,7 @@ function drawHand(lm){
     ctx.arc(p.x*canvas.width,p.y*canvas.height,4,0,Math.PI*2);ctx.fill();}
 }
 
-/* ---------------- 手势分类 ---------------- */
+/* ---------------- gesture classification ---------------- */
 function classify(lm){
   const w=lm[0], d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
   const up=(tip,pip)=>d(lm[tip],w)>d(lm[pip],w)*1.05;
@@ -634,20 +634,20 @@ function classify(lm){
   if(n>=3)return'paper';
   return null;
 }
-// 👍 竖大拇指：四指明显卷曲 + 拇指伸出且朝上（是最高点）
+// 👍 thumbs-up: 4 fingers clearly curled + thumb out and topmost (pointing up)
 function isThumbsUp(lm){
   const w=lm[0], d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-  // 卷曲：指尖比其掌指关节(MCP)更靠近手腕
+  // curled: fingertip closer to wrist than its MCP
   const curled=(tip,mcp)=> d(lm[tip],w) < d(lm[mcp],w)*1.15;
   const fingersCurled = curled(8,5)&&curled(12,9)&&curled(16,13)&&curled(20,17);
-  const thumbOut = d(lm[4],w) > d(lm[2],w)*1.4;           // 拇指伸出
-  // 拇指必须朝上：指尖明显高于拇指根(向上) 且是全手最高点——👎向下、横放、张手都会被排除
+  const thumbOut = d(lm[4],w) > d(lm[2],w)*1.4;           // thumb extended
+  // thumb must point up: tip well above its base and topmost — rejects 👎 down, sideways, open hand
   const thumbUp = lm[4].y < lm[2].y-0.05
     && lm[4].y<lm[8].y && lm[4].y<lm[12].y && lm[4].y<lm[16].y && lm[4].y<lm[20].y && lm[4].y<lm[0].y;
   return fingersCurled && thumbOut && thumbUp;
 }
 
-/* ---------------- 连胜特效引擎 ---------------- */
+/* ---------------- win-streak FX engine ---------------- */
 const stage=document.querySelector('.stage'), fx=document.getElementById('fx'), fxc=fx.getContext('2d'),
   comboEl=document.getElementById('combo'), comboWord=document.getElementById('comboWord'),
   flashEl=document.getElementById('flash');
@@ -699,31 +699,31 @@ function streakFx(){ if(streak<2) return; const tg=comboTier(streak);
   comboWord.classList.remove('go'); void comboWord.offsetWidth; comboWord.classList.add('go');
   burst(Math.min(24+streak*10,150), tg.cols); flash(tg.flash); shake(tg.shake); beep(streak); }
 
-/* ---------------- 游戏流程 ---------------- */
+/* ---------------- game flow ---------------- */
 function judge(y,a){ if(y===a)return'tie';
   if((y==='rock'&&a==='scissors')||(y==='scissors'&&a==='paper')||(y==='paper'&&a==='rock'))return'win';
   return'lose'; }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
-/* ---------------- 读心 AI（可开关，非无敌） ---------------- */
-const BEAT={rock:'paper',paper:'scissors',scissors:'rock'};      // 克制 key 的招
-const AGGRO=0.7;                                                 // 读心概率，其余随机 → 打得过
+/* ---------------- mind-reader AI (toggleable, not unbeatable) ---------------- */
+const BEAT={rock:'paper',paper:'scissors',scissors:'rock'};      // the move that beats key
+const AGGRO=0.7;                                                 // mind-read probability, otherwise random -> beatable
 const randMove=()=>['rock','scissors','paper'][Math.floor(Math.random()*3)];
 function predictPlayer(){
   const h=history; if(h.length<3) return null;
   const last=h[h.length-1];
-  if(last.r==='win')  return last.you;          // 胜留：预测你重复
-  if(last.r==='lose') return BEAT[last.you];    // 败变：预测你顺时针换手
-  const c={rock:0,paper:0,scissors:0}; h.slice(-12).forEach(x=>c[x.you]++);  // 平局→近期高频
+  if(last.r==='win')  return last.you;          // win-stay: predict you repeat
+  if(last.r==='lose') return BEAT[last.you];    // lose-shift: predict you rotate clockwise
+  const c={rock:0,paper:0,scissors:0}; h.slice(-12).forEach(x=>c[x.you]++);  // tie -> recent most-frequent
   return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
 }
 function chooseAI(){ aiGuess=null;
   if(!mindReader) return randMove();
   const p=predictPlayer();
-  if(!p || Math.random()>AGGRO) return randMove();  // 留出破绽
-  aiGuess=p; return BEAT[p];                         // 出克制你预测手的招
+  if(!p || Math.random()>AGGRO) return randMove();  // leave an opening
+  aiGuess=p; return BEAT[p];                         // play the counter to your predicted move
 }
-// 可证明公平：AI 出手前先公开哈希封条，揭示时可校验
+// provably fair: AI publishes a hash seal before playing; verifiable on reveal
 async function sha256(s){ const b=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 function genSalt(){ const a=new Uint8Array(8); crypto.getRandomValues(a);
@@ -733,7 +733,7 @@ async function playRound(){
   if(!tabActive){ showLock(); return; }
   playBtn.disabled=true;
   const seq=['rock','scissors','paper'];
-  // ① AI 出手前先落子并公开封条哈希（可证明公平）
+  // (1) AI locks its move and publishes the seal hash first (provably fair)
   const ai=chooseAI(), salt=genSalt(), seal=await sha256(ai+'|'+salt);
   sealEl.className='seal'; sealEl.style.display='block';
   sealEl.textContent=`🔒 ${t('sealed')} · ${seal.slice(0,12)}`;
@@ -745,7 +745,7 @@ async function playRound(){
   center.innerHTML='';
   const you=lastGesture;
   aiHand.innerHTML=EMOJI[ai]+`<small>${t('ai')}</small>`;
-  // ② 揭示并校验封条 → 证明 AI 没在看到你的手后改招
+  // (2) reveal and verify the seal -> proves AI didn't change after seeing your hand
   const check=await sha256(ai+'|'+salt);
   sealEl.className='seal ok'; sealEl.textContent=`✅ ${t('verified')} · ${check.slice(0,12)}`;
   if(!you){
@@ -757,7 +757,7 @@ async function playRound(){
       center.innerHTML=`<div class="result win">${t('win')}</div>`; updateCombo(); streakFx();}
     else if(r==='lose'){scoreAi++;sAi.textContent=scoreAi; streak=0;
       center.innerHTML=`<div class="result lose">${t('lose')}</div>`; updateCombo();}
-    else center.innerHTML=`<div class="result tie">${t('tie')}</div>`; // 平局保留连胜
+    else center.innerHTML=`<div class="result tie">${t('tie')}</div>`; // tie keeps the streak
     statusEl.textContent=t('played',{y:`${t(you)} ${EMOJI[you]}`, a:`${t(ai)} ${EMOJI[ai]}`});
     store.record(r);
     history.push({you,ai,r}); if(history.length>300) history.shift();
@@ -769,7 +769,7 @@ async function playRound(){
   await wait(1600); center.innerHTML=''; sealEl.style.display='none'; playBtn.disabled=false;
 }
 
-/* ---------------- 事件 ---------------- */
+/* ---------------- events ---------------- */
 maskToggle.addEventListener('click',()=>{ maskOn=!maskOn;
   maskToggle.classList.toggle('on',maskOn);
   if(maskOn) maskIdx=Math.floor(Math.random()*MASKS.length); });
@@ -790,7 +790,7 @@ playBtn.addEventListener('click', async ()=>{
   playRound();
 });
 
-/* ================= 数据层：Supabase / 本地 Demo 双实现 ================= */
+/* ================= Data layer: Supabase / local demo ================= */
 function wilson(w, n){ if(!n) return 0; const z=1.96, p=w/n;
   return (p + z*z/(2*n) - z*Math.sqrt((p*(1-p)+z*z/(4*n))/n))/(1+z*z/n); }
 
@@ -816,7 +816,7 @@ const localStore = {
   async load(){ me = JSON.parse(localStorage.getItem('rps_me')||'null'); },
   user(){ return me; },
   async signInEmail(email){ me={name:email.split('@')[0],avatar:'🦊',wins:0,losses:0,ties:0}; this._save(); return {ok:true,instant:true}; },
-  async signInGoogle(){ const n='Player'+Math.floor(1000+Math.random()*9000); // 不用 prompt，避免 iOS 暂停摄像头
+  async signInGoogle(){ const n='Player'+Math.floor(1000+Math.random()*9000); // no prompt, avoids iOS pausing the camera
     me={name:n,avatar:'🦊',country:_cc,wins:0,losses:0,ties:0}; this._save(); return {ok:true,instant:true}; },
   async signOut(){ me=null; localStorage.removeItem('rps_me'); },
   record(r){ if(!me)return; if(r==='win')me.wins++; else if(r==='lose')me.losses++; else me.ties++; this._save(); },
@@ -844,7 +844,7 @@ const localStore = {
 function makeSbStore(client){ return {
   demo:false,
   async load(){
-    // 跳转回来若带错误（如链接过期），显示出来
+    // if redirected back with an error (e.g. expired link), surface it
     if(location.hash.includes('error')){ const p=new URLSearchParams(location.hash.slice(1));
       statusEl.textContent='Login failed: '+(p.get('error_description')||p.get('error')||'');
       try{ history.replaceState(null,'',location.pathname); }catch(e){} }
@@ -899,7 +899,7 @@ async function initStore(){
 async function ensureCountry(){ const cc=await detectCountry();
   if(store && store.user() && (!me.country || me.country==='XX')) await store.setCountry(cc); }
 
-/* ================= 登录 / 排行榜 UI ================= */
+/* ================= Login / leaderboard UI ================= */
 const lbBtn=document.getElementById('lbBtn'), userBtn=document.getElementById('userBtn'),
   userName=document.getElementById('userName'), userIcon=document.getElementById('userIcon'),
   loginModal=document.getElementById('loginModal'), lbModal=document.getElementById('lbModal'),
@@ -923,13 +923,13 @@ userBtn.addEventListener('click', ()=>{
     loginTip.textContent = store.demo ? t('demo') : t('loginTip'); openModal(loginModal); }
 });
 
-/* ---- 我的资料：改用户名 + 绑定 SOL 地址 ---- */
+/* ---- Profile: change username + bind SOL address ---- */
 const profileModal=document.getElementById('profileModal'), nameInput=document.getElementById('nameInput'),
   walletInput=document.getElementById('walletInput'), walletHint=document.getElementById('walletHint'),
   profTip=document.getElementById('profTip'), saveProfBtn=document.getElementById('saveProfBtn'),
   signoutBtn=document.getElementById('signoutBtn');
 
-// base58 校验：解码应为 32 字节
+// base58 check: must decode to 32 bytes
 function isSolAddress(s){ if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(s)) return false;
   const A='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; let bytes=[0];
   for(const ch of s){ let carry=A.indexOf(ch); if(carry<0) return false;
@@ -995,7 +995,7 @@ async function renderLB(scope){
 lbBtn.addEventListener('click', ()=>{ openModal(lbModal); renderLB('global'); });
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>renderLB(tab.dataset.scope)));
 
-/* ================= 战绩分享卡（像素风） ================= */
+/* ================= Score card (pixel style) ================= */
 const shareBtn=document.getElementById('shareBtn'), shareModal=document.getElementById('shareModal'),
   cardImg=document.getElementById('cardImg'), saveBtn=document.getElementById('saveBtn'),
   sysShareBtn=document.getElementById('sysShareBtn');
@@ -1012,25 +1012,25 @@ function ptext(g,s,x,y,size,color,align){ ctext(g,s,x+4,y+4,size,'#000',true,ali
 function drawCard(g,W,H,d){
   g.fillStyle='#008080'; g.fillRect(0,0,W,H);
   bevel(g,40,40,W-80,H-80,true,'#c0c0c0');
-  // 标题栏
+  // title bar
   const grd=g.createLinearGradient(64,0,W-64,0); grd.addColorStop(0,'#000080'); grd.addColorStop(1,'#1084d0');
   g.fillStyle=grd; g.fillRect(64,64,W-128,72);
   ctext(g,'RPS.EXE — SCORE CARD',88,100,20,'#fff',true,'left');
   bevel(g,W-152,74,52,52,true,'#c0c0c0'); ctext(g,'✕',W-126,102,18,'#000',true,'center');
-  // 头像
+  // avatar
   ctext(g,d.avatar||'🕹️',W/2,320,190,'#000',false,'center');
   ptext(g,`${cc2flag(d.country)} ${d.name}`.slice(0,26),W/2,470,34,'#fff','center');
-  // 三个 LCD 战绩框
+  // three LCD stat boxes
   const bw=280,bh=180,gap=30,sx=(W-(bw*3+gap*2))/2,by=540;
   const boxes=[['WIN',d.wins,'#0f0'],['LOSE',d.losses,'#f55'],['DRAW',d.ties,'#ff0']];
   boxes.forEach((b,i)=>{ const x=sx+i*(bw+gap);
     bevel(g,x,by,bw,bh,false,'#000');
     ctext(g,String(b[1]),x+bw/2,by+bh*0.42,72,b[2],true,'center');
     ctext(g,b[0],x+bw/2,by+bh*0.78,34,'#0a0',false,'center'); });
-  // 胜率
+  // win rate
   const dec=d.wins+d.losses, wr=dec?Math.round(d.wins/dec*100):0;
   ptext(g,`WIN RATE ${wr}%`,W/2,800,44,'#ffde00','center');
-  // 排名
+  // rank
   if(d.rank){
     bevel(g,120,872,W-240,168,false,'#101010');
     ptext(g,`GLOBAL RANK #${d.rank}`,W/2,934,40,'#00e0ff','center');
@@ -1039,15 +1039,15 @@ function drawCard(g,W,H,d){
     bevel(g,120,872,W-240,168,false,'#101010');
     ptext(g,'★ LOG IN TO RANK ★',W/2,958,30,'#ffde00','center');
   }
-  // SOL 持有者徽章（与下方 CTA / 上方排名框同宽对齐）
+  // SOL holder badge (same width as CTA below / rank box above)
   if(d.wallet){
     const short=d.wallet.slice(0,4)+'…'+d.wallet.slice(-4), bw=W-240,bx=120,by=1056,bh=52;
     bevel(g,bx,by,bw,bh,false,'#0a0a12');
     ctext(g,`◎ HOLDER  ${short}`,W/2,by+bh/2+2,30,'#b48bff',false,'center');
   }
-  // 扫描线（先画，避免盖住下面网址导致看不清）
+  // scanlines (drawn first so they don't blur the URL below)
   g.fillStyle='rgba(0,0,0,0.10)'; for(let y=40;y<H-40;y+=3) g.fillRect(40,y,W-80,1);
-  // 页脚 CTA 条：与排名框同宽，MEMECOIN 钩子(金色) + 超大号域名(青色)，深底高对比、清晰 VT323
+  // footer CTA bar: same width as rank box, MEMECOIN hook (gold) + big URL (cyan), dark hi-contrast VT323
   const uw=W-240, ux=120, uy=1118, uh=138;
   bevel(g,ux,uy,uw,uh,false,'#08080f');
   ctext(g,'▶ PLAY RPS · WIN MEMECOIN 🪙',W/2,uy+38,34,'#ffd000',false,'center');
@@ -1078,7 +1078,7 @@ sysShareBtn.addEventListener('click', ()=>{ if(!cardCanvas) return;
   cardCanvas.toBlob(async b=>{ const f=new File([b],'rps-score-card.png',{type:'image/png'});
     try{ await navigator.share({files:[f],title:'RPSAI',text:'✊✌️🖐️ Beat me at Rock-Paper-Scissors! rpsai.io'}); }catch(e){} },'image/png'); });
 
-/* ================= 玩家心理分析（基于 Wang et al. 2014 胜留败变模型） ================= */
+/* ================= Player psychology (Wang et al. 2014 win-stay/lose-shift) ================= */
 const psyBtn=document.getElementById('psyBtn'), psyModal=document.getElementById('psyModal'), psyBody=document.getElementById('psyBody');
 
 const PSY={
@@ -1103,7 +1103,7 @@ function analyze(h){ const n=h.length, c={rock:0,paper:0,scissors:0};
   h.forEach(x=>c[x.you]++);
   const pr=c.rock/n, pp=c.paper/n, psc=c.scissors/n;
   const H=-((pr>0?pr*Math.log2(pr):0)+(pp>0?pp*Math.log2(pp):0)+(psc>0?psc*Math.log2(psc):0))/Math.log2(3);
-  const cw={rock:'paper',paper:'scissors',scissors:'rock'}; // 顺时针下一手
+  const cw={rock:'paper',paper:'scissors',scissors:'rock'}; // clockwise next move
   let rep=0,trans=0,winPrev=0,winStay=0,losePrev=0,loseShift=0,loseClock=0;
   for(let i=1;i<n;i++){ const p=h[i-1], q=h[i]; trans++;
     if(q.you===p.you) rep++;
@@ -1156,7 +1156,7 @@ function renderPsy(){
 }
 psyBtn.addEventListener('click', ()=>{ openModal(psyModal); renderPsy(); });
 
-/* ================= 单窗口锁（防多开同时刷分） ================= */
+/* ================= Single-window lock (anti concurrent farming) ================= */
 const lockModal=document.getElementById('lockModal'), lockBtn=document.getElementById('lockBtn');
 const TAB=Math.random().toString(36).slice(2);
 let tabActive=true;
@@ -1166,9 +1166,9 @@ function claimTab(){ tabActive=true; lockModal.classList.remove('show');
 window.addEventListener('storage', e=>{ if(e.key==='rps_active' && e.newValue){
   try{ const v=JSON.parse(e.newValue); if(v.id && v.id!==TAB) showLock(); }catch(_){} } });
 lockBtn.addEventListener('click', claimTab);
-claimTab(); // 本窗口开局即认领
+claimTab(); // claim on load
 
-// 在线人数（7 位数字位，预留到百万级；先滚动到基数再轻微实时跳动）
+// online count (7-digit field up to millions; roll to base then jitter)
 (function(){ const el=document.getElementById('visits'); if(!el) return;
   let n=parseInt(localStorage.getItem('rps_visits')||'0',10)+1+Math.floor(Math.random()*3);
   localStorage.setItem('rps_visits', n);
@@ -1176,7 +1176,7 @@ claimTab(); // 本窗口开局即认领
   const render=()=>el.textContent=String(Math.max(0,cur)).padStart(7,'0');
   const tick=()=>{ render(); if(cur<base){ cur++; requestAnimationFrame(tick); } else live(); };
   function live(){ setInterval(()=>{ cur += Math.floor(Math.random()*9)-4;
-    if(cur<base-25) cur=base-25; render(); }, 4000); }  // ±小幅波动，像实时在线数
+    if(cur<base-25) cur=base-25; render(); }, 4000); }  // small +/- jitter, feels like a live count
   tick();
 })();
 
